@@ -36,8 +36,34 @@ interface Rojo5File {
 	tree: Rojo5Tree & Rojo5TreeMetadata;
 }
 
-function getPathSegments(st: string): string[] {
-	return st.split(".");
+interface PartitionInfo {
+	service: string;
+	relativePath: string[];
+}
+
+function getPartition(st: string): PartitionInfo {
+	const result = st.split(".");
+	return {
+		service: result[0],
+		relativePath: result.splice(1),
+	};
+}
+
+function convertService(
+	partition: PartitionInfo,
+	file: Rojo5File,
+	path: string,
+) {
+	if (!file.tree[partition.service]) {
+		const subTree: Rojo5TreeMetadata & Rojo5Tree = {};
+		subTree.$className = partition.service;
+		file.tree[partition.service] = subTree;
+
+		if (partition.relativePath.length == 0) {
+			subTree.$path = path;
+		}
+	} else {
+	}
 }
 
 function convert(file: Rojo4File): Rojo5File {
@@ -50,6 +76,9 @@ function convert(file: Rojo4File): Rojo5File {
 
 	for (const partitionName in file.partitions) {
 		const partition = file.partitions[partitionName];
+
+		const path = getPartition(partition.target);
+		convertService(path, rojo5, partition.path);
 	}
 
 	return rojo5;
