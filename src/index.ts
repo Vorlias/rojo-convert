@@ -54,6 +54,7 @@ function convertService(
 function convert(file: Rojo4File): Rojo5File {
 	const rojo5: Rojo5File = {
 		name: file.name,
+		servePort: file.servePort || 34872,
 		tree: {},
 	};
 

@@ -26,6 +26,7 @@ interface Rojo5Tree {
 }
 
 interface Rojo5File {
+	servePort?: number;
 	name: string;
 	tree: Rojo5Tree & Rojo5TreeMetadata;
 }
