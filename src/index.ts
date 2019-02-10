@@ -49,20 +49,41 @@ function getPartition(st: string): PartitionInfo {
 	};
 }
 
+function addSegmentToPath(
+	tree: Rojo5Tree & Rojo5TreeMetadata,
+	segments: string[],
+	path: string,
+) {
+	if (segments.length == 0) {
+		tree.$path = path;
+	} else {
+		let segment = segments[0];
+		let subTree = tree[segment];
+		if (!subTree) {
+			subTree = {};
+			subTree.$className = "Folder";
+			tree[segment] = subTree;
+			addSegmentToPath(subTree, segments.splice(1), path);
+		} else {
+			addSegmentToPath(subTree, segments.splice(1), path);
+		}
+	}
+}
+
 function convertService(
 	partition: PartitionInfo,
 	file: Rojo5File,
 	path: string,
 ) {
-	if (!file.tree[partition.service]) {
-		const subTree: Rojo5TreeMetadata & Rojo5Tree = {};
+	let subTree = file.tree[partition.service];
+	if (!subTree) {
+		subTree = {};
 		subTree.$className = partition.service;
 		file.tree[partition.service] = subTree;
 
-		if (partition.relativePath.length == 0) {
-			subTree.$path = path;
-		}
+		addSegmentToPath(subTree, partition.relativePath, path);
 	} else {
+		addSegmentToPath(subTree, partition.relativePath, path);
 	}
 }
 
@@ -90,7 +111,11 @@ if (fs.existsSync(rojoJSON)) {
 		const obj: Rojo4File = JSON.parse(data);
 
 		const out = convert(obj);
-		console.log(out);
+
+		fs.writeFileSync(
+			path.resolve(process.cwd(), "default.project.json"),
+			JSON.stringify(out, null, "\t"),
+		);
 	});
 } else {
 	console.error(`Failed to find ${rojoJSON}`);
