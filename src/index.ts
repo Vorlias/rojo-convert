@@ -24,7 +24,7 @@ function addSegmentToPath(
 		let subTree = tree[segment];
 		if (!subTree) {
 			subTree = {};
-			subTree.$className = "Folder";
+			// subTree.$className = "Folder";
 
 			if (segments.length > 1) {
 				subTree.$ignoreUnknownInstances = true; // cause with Rojo 0.4.x, it wouldn't have modified parents.
